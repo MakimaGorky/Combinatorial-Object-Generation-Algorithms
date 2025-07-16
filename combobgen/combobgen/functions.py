@@ -196,7 +196,7 @@ def floyd_recursive(n, k): # вспомогательная функция
         return []
     else:
         s = floyd_recursive(n-1, k-1)
-        t = secrets.randbelow(n+1)
+        t = secrets.randbelow(n) # по идее, оно выходит при генерации за пределы генерации, потому вызывает ошибку (нам же нужны значения от 0 до n-1, а не n)
         if t not in s:
             s.append(t)
         else:
@@ -225,6 +225,7 @@ def floyd_iterative(n, k): #вспомогательная функция
 
 def generate_sampling_floyd_iterative(arr, k): # алгоритм выборки элементов в массиве (итеративный алгоритм Флойда)
     perm = floyd_iterative(len(arr), k)
+    print("perm:", perm)
     return [arr[i] for i in perm]
 
 def get_prefixcipher_sample(n: int, k: int): #вспоомогательная функция
@@ -469,21 +470,28 @@ def fixed_weight(n, m, q ,t, sigma_1):
         tau = t
     elif q/2 <= n and n < q:
         tau = 2*t
+
     b = []
     for i in range(sigma_1*tau):
         b.append(secrets.randbelow(2))
+
     d = []
     for j in range(tau):
         d_j = 0
         for i in range(m):
-            d_j += b[sigma_1*j+i]*(2**i)
-        d.append(d_j)
+            idx = sigma_1 * j + i
+            if idx >= len(b):
+                raise ValueError("Внутренняя ошибка: нехватка случайных битов")
+            d_j += b[idx] * (2 ** i)
+        d.append(d_j % n)
+
     a = []  
     for i in range(len(d)):
-        if d[i]<n:
+        if d[i] < n:
             a.append(d[i])
         if(len(a) == t):
             break
+
     if(len(a) < t):
         print("всё по новой")
         return fixed_weight(n, m, q ,t, sigma_1)

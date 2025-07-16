@@ -13,20 +13,10 @@ from random import uniform
 
 import cryptography
 from hpc import generate_hpc_functions
-
-
-"""
-
-TODO:
-- перенести все функции и унифицировать их интерфейс для тестирования
-- нагенерить spice
-
-"""
-
-
+  
 # region Перестановки
 
-def fisher_yates_shuffle(arr):
+def fisher_yates_shuffle(arr):#вспомогательная функция
     """
     Алгоритм Fisher-Yates для случайной перестановки массива.
     Модифицирует исходный массив на месте.
@@ -39,15 +29,27 @@ def fisher_yates_shuffle(arr):
     for i in range(n - 1, 0, -1):
         j = secrets.randbelow(i+1)
         arr[i], arr[j] = arr[j], arr[i]
-def generate_random_permutation_fisher_yates(n):
-    """Генерирует случайную перестановку чисел от 0 до n-1."""
-    arr = list(range(n))
+
+def generate_random_permutation_fisher_yates(arr): #алгоритм перестановки элементов в массиве Фишера Йетса
     fisher_yates_shuffle(arr)
     return arr
 
+def floyd_permutation(n): #вспомогательная функция
+    S = []
+    for J in range(1, n + 1):
+        T = random.randint(1, J)
+        if T not in S:
+            S.insert(0, T)  
+        else:
+            idx = S.index(T)
+            S.insert(idx + 1, J)
+    return S
 
-                                            # hpc
-def get_prefixcipher_permutation(k: int):
+def generate_random_permutation_floyd(arr): # алгоритм перестановки элементов в массиве Флойда
+    perm = floyd_permutation(len(arr))
+    return [arr[i-1] for i in perm]
+                                            
+def get_prefixcipher_permutation(k: int): # вспомогательная функция
     """
         Перестановки для k объектов на основе prefixCipher
         Args:
@@ -75,7 +77,12 @@ def get_prefixcipher_permutation(k: int):
     permutation = [item[0] for item in sorted_by_encrypted]
 
     return permutation
-def get_permutation_with_cyk(k: int) -> list[int]: 
+
+def generate_random_permutation_prefixcipher(arr):  # алгоритм перестановки элементов в массиве Prefixcipher
+    perm = get_prefixcipher_permutation(len(arr))
+    return [arr[i] for i in perm]
+
+def get_permutation_with_cyk(k: int) -> list[int]: # вспомогательная функция
     """
         Перестановки для [0..k-1] на основе CycleWalkCipher. В качестве блочного шифра используется hpc
     """
@@ -104,11 +111,15 @@ def get_permutation_with_cyk(k: int) -> list[int]:
         result_list[i] = mapped_value
     return result_list
 
-def getPermutation_Paloma(t: int) -> list[int]:
+def generate_random_permutation_cyk(arr): # алгоритм перестановки элементов в массиве Cyk
+    perm = get_permutation_with_cyk(len(arr))
+    return [arr[i] for i in perm]
+
+def getPermutation_Paloma(t: int) -> list[int]: # вспомогательная функция
     """
      Генерация перестановки в Paloma KEM
      """
-    seed = os.urandom(32)   #SEED
+    seed = os.urandom(32)   
     r_hat = []
 
     for i in range(16):
@@ -127,7 +138,11 @@ def getPermutation_Paloma(t: int) -> list[int]:
 
     return A
 
-def getPermutation_PalomaOpt(t: int) -> list[int]:
+def generate_random_permutation_Paloma(arr): # алгоритм перестановки элементов в массиве Paloma
+    perm = getPermutation_Paloma(len(arr))
+    return [arr[i] for i in perm]
+
+def getPermutation_PalomaOpt(t: int) -> list[int]: #вспомогательная функция
     if t <= 0:
         return []
     A = list(range(t))
@@ -145,17 +160,21 @@ def getPermutation_PalomaOpt(t: int) -> list[int]:
 
     return A
 
+def generate_random_permutation_PalomaOpt(arr): # алгоритм перестановки элементов в массиве PalomaOpt
+    perm = getPermutation_PalomaOpt(len(arr))
+    return [arr[i] for i in perm]
+
 # endregion
 
 
 # region  Выборки
 
-def typical_sampling(arr, k):
+def typical_sampling(arr, k): # алгоритм выборки элементов в массиве (самый простой)
     """
     Args:
         arr: массив, из которого производится выборка
         k: количество элментов выборки (0<k<=len(arr))
-    P.S в массиве должно быть дстаточное количество различных k элементов, чтоб алгоритм не умер и не зациклился
+    P.S в массиве должно быть достаточное количество различных k элементов, чтоб алгоритм не умер и не зациклился
     """
     s = []
     size = 0
@@ -166,14 +185,58 @@ def typical_sampling(arr, k):
             size+=1
     return s
 
-    
+def floyd_recursive(n, k): # вспомогательная функция
+    """
+    Args:
+        n: количество элементов, из которого производится выборка
+        k: количество элментов выборки (0 < k <= len(arr))
+    P.S в массиве должно быть достаточное количество различных k элементов, чтоб алгоритм не умер и не зациклился
+    """
+    if k == 0:
+        return []
+    else:
+        s = floyd_recursive(n-1, k-1)
+        t = secrets.randbelow(n+1)
+        if t not in s:
+            s.append(t)
+        else:
+            s.append(n)
+        return s
 
-def get_prefixcipher_sample(k: int, n: int):
+def generate_sampling_floyd_recursive(arr, k): # алгоритм выборки элементов в массиве (рекурсивный алгоритм Флойда)
+    perm = floyd_recursive(len(arr), k)
+    return [arr[i] for i in perm]
     
-    perm = get_prefixcipher_permutation(k)
-    return perm[n:]
+def floyd_iterative(n, k): #вспомогательная функция
+    """
+    Args:
+        n: количество элементов, из которого производится выборка
+        k: количество элментов выборки (0 < k <= len(arr))
+    P.S в массиве должно быть достаточное количество различных k элементов, чтоб алгоритм не умер и не зациклился
+    """
+    s = []
+    for j in range(n-k+1, n+1):
+        t = secrets.randbelow(j)
+        if t not in s:
+            s.append(t)
+        else:
+            s.append(j)
+    return s
+
+def generate_sampling_floyd_iterative(arr, k): # алгоритм выборки элементов в массиве (итеративный алгоритм Флойда)
+    perm = floyd_iterative(len(arr), k)
+    return [arr[i] for i in perm]
+
+def get_prefixcipher_sample(n: int, k: int): #вспоомогательная функция
+    perm = get_prefixcipher_permutation(n)
+    return perm[:k]
+
+def generate_sampling_prefixcipher(arr, k): # алгоритм выборки элементов в массиве (prefixcipher)
+    perm = get_prefixcipher_sample(len(arr), k)
+    print(k)
+    return [arr[i] for i in perm]
   
-def get_sample_with_cyk(k: int, n: int) -> list[int]:
+def get_sample_with_cyk(k: int, n: int) -> list[int]: #вспомогательная функция
 
     blocksize = k.bit_length()
     backup = 0
@@ -199,7 +262,13 @@ def get_sample_with_cyk(k: int, n: int) -> list[int]:
         mapped_value = Cy_K(i)
         result_list[i] = mapped_value
     return result_list
-def reservoir_sampling_list(population: List[Any], k: int) -> List[Any]:
+
+def generate_sampling_with_cyk(arr, k): # алгоритм выборки элементов в массиве (cyk)
+    perm = get_sample_with_cyk(len(arr), k)
+    return [arr[i] for i in perm]
+
+
+def reservoir_sampling_list(population: List[Any], k: int) -> List[Any]:  # алгоритм выборки элементов в массиве (резервуар)
     """
     Reservoir sampling для списка - выбирает k (0 < k <= n) случайных элементов.
     
@@ -225,18 +294,29 @@ def reservoir_sampling_list(population: List[Any], k: int) -> List[Any]:
     
     return reservoir
 
-def getSamplePaloma(t: int, n: int):
+
+def getSamplePaloma(t: int, n: int): # вспомогательная функция
     """
      Генерация выборки в Paloma KEM.
      """
     perm = getPermutation_Paloma(t)
     return perm[:n]
 
-def getSamplePalomaOpt(t: int, n: int): #SEED внутри permutation
+
+def generate_sampling_Paloma(arr, k): # алгоритм выборки элементов в массиве (Palom)
+    perm = getSamplePaloma(len(arr), k)
+    return [arr[i] for i in perm]
+
+
+def getSamplePalomaOpt(t: int, n: int): #SEED внутри permutation, вспомогательная функция
     perm = getPermutation_PalomaOpt(t)
     return perm[:n]
 
-def get_sample_hidden_shuffle(N, n):  # WOR from 0..N-1
+def generate_sampling_PalomaOpt(arr, k): # алгоритм выборки элементов в массиве (PalomOpt)
+    perm = getSamplePalomaOpt(len(arr), k)
+    return [arr[i] for i in perm]
+
+def get_sample_hidden_shuffle(N, n):  # WOR from 0..N-1    вспоомгталеьная функция
     # STEP 1: compute H
     H = 0
     i = 0
@@ -276,6 +356,10 @@ def get_sample_hidden_shuffle(N, n):  # WOR from 0..N-1
         L = L - 1
         n = n - s - 1
         yield (N - 1) - n
+
+def generate_sampling_hidden_shuffle(arr, k): # алгоритм выборки элементов в массиве (hidden shuffle)
+    perm = get_sample_hidden_shuffle(len(arr), k)
+    return [arr[i] for i in perm]
 
 # endregion
 
@@ -347,7 +431,7 @@ class FeistelCipherOptimized:
 
                                    # reservoir
 
-# region Вектора фиксированного веса 
+# region Векторы фиксированного веса 
 
 #  Вспомогательная функция 
 def has_duplicates(arr):
@@ -470,3 +554,6 @@ def generate_fixed_vector_Paloma(t: int, n:int): #SEED внутри permutation
     return vect
 
 # endregion
+
+
+print(generate_sampling_hidden_shuffle([3,45,3,2,4,7,8,9], 3))

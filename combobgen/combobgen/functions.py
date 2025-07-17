@@ -115,6 +115,23 @@ def generate_random_permutation_cyk(arr): # алгоритм перестано�
     perm = get_permutation_with_cyk(len(arr))
     return [arr[i] for i in perm]
 
+def generate_permutation_prefixcipherAES(k: int):
+    """
+    Реализация Prefix Cipher.
+    :param k: Граница для множества  М = [0, k-1]
+    :return: Перестановка из М
+    """
+    key = get_random_bytes(16)  # AES-128
+    cipher = AES.new(key, AES.MODE_ECB)
+    encrypted = []
+    for m in range(k):
+        block = m.to_bytes(16, byteorder='big')
+        encrypted_block = cipher.encrypt(block)
+        encrypted.append(int.from_bytes(encrypted_block, byteorder='big'))
+    sorted_encrypted = sorted(encrypted)
+    permutation = [sorted_encrypted.index(val) for val in encrypted]
+    return permutation
+
 def getPermutation_Paloma(t: int) -> list[int]: # вспомогательная функция
     """
      Генерация перестановки в Paloma KEM

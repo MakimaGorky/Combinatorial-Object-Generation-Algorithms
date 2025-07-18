@@ -6,13 +6,15 @@ from typing import List, Any, Iterator, Callable
 import time
 import os
 from Crypto.Cipher import DES
+from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
+from Crypto.Random import get_random_bytes
 
 from math import log , exp , floor
 from random import uniform
 
 import cryptography
-from .hpc import generate_hpc_functions
+from hpc import generate_hpc_functions
   
 # region Перестановки
 
@@ -37,7 +39,7 @@ def generate_random_permutation_fisher_yates(arr): #алгоритм перес�
 def floyd_permutation(n): #вспомогательная функция
     S = []
     for J in range(1, n + 1):
-        T = random.randint(1, J)
+        T = secrets.randbelow(J)
         if T not in S:
             S.insert(0, T)  
         else:
@@ -72,7 +74,7 @@ def get_prefixcipher_permutation(k: int): # вспомогательная фу�
     for i in range(k):
         encrypted_val = encrypt(i, spice)
         encrypted_pairs.append((i, encrypted_val))
-        print(f"E({i}) = {encrypted_val}")
+        #print(f"E({i}) = {encrypted_val}")
     sorted_by_encrypted = sorted(encrypted_pairs, key=lambda item: item[1])
     permutation = [item[0] for item in sorted_by_encrypted]
 
@@ -250,7 +252,6 @@ def get_prefixcipher_sample(n: int, k: int): #вспоомогательная �
 
 def generate_sampling_prefixcipher(arr, k): # алгоритм выборки элементов в массиве (prefixcipher)
     perm = get_prefixcipher_sample(len(arr), k)
-    print(k)
     return [arr[i] for i in perm]
   
 def get_sample_with_cyk(k: int, n: int) -> list[int]: #вспомогательная функция
@@ -502,11 +503,9 @@ def fixed_weight(n, m, q ,t, sigma_1):
         if(len(a) == t):
             break
     if(len(a) < t):
-        print("всё по новой")
         return fixed_weight(n, m, q ,t, sigma_1)
 
     if (has_duplicates(a)):
-        print("всё по новой")
         return fixed_weight(n, m, q ,t, sigma_1)
     
     e = [0] * n
@@ -571,6 +570,3 @@ def generate_fixed_vector_Paloma(t: int, n:int): #SEED внутри permutation
     return vect
 
 # endregion
-
-
-print(generate_sampling_hidden_shuffle([3,45,3,2,4,7,8,9], 3))

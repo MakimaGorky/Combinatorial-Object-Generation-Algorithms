@@ -18,6 +18,28 @@ from hpc import generate_hpc_functions
   
 # region Перестановки
 
+def random_weight_permutation_seeded(k: int, n: int, seed: bytes = None) -> list[int]:
+    
+    if k < 1:
+        raise ValueError("k должно быть >= 1")
+    if n <= k:
+        raise ValueError(f"n должно быть > k")
+    if seed and len(seed) < 16:
+        raise ValueError("Seed должен быть >= 16 байт")
+    gen = secrets.SystemRandom(seed) if seed else secrets.SystemRandom()
+    used = set()
+    pairs = []
+    for i in range(k):
+        while True:
+            rand_num = gen.randrange(1, n + 1)
+            if rand_num not in used:
+                used.add(rand_num)
+                pairs.append((i, rand_num))
+                break
+    sorted_pairs = sorted(pairs, key=lambda x: x[1])
+    permutation = [pair[0] for pair in sorted_pairs]
+    return permutation
+
 def fisher_yates_shuffle(arr):#вспомогательная функция
     """
     Алгоритм Fisher-Yates для случайной перестановки массива.
@@ -483,6 +505,7 @@ def fixed_weight(n, m, q ,t, sigma_1):
 
     """
     tau = t
+    tau = int(t*pow(2, math.log(int(q//n), 2) + 1))
     if n == q:
         tau = t
     elif q/2 <= n and n < q:

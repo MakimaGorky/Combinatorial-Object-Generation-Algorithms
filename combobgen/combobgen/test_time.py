@@ -16,6 +16,7 @@ from functions import (
     generate_permutation_prefixcipherAES,
     getPermutation_Paloma,
     getPermutation_PalomaOpt,
+    random_weight_permutation_seeded,
 
     typical_sampling,
     #floyd_recursive,
@@ -49,7 +50,7 @@ def run_and_measure_avg(stmt, setup, number=100, repeat=5):
 N_VALUES = [10**2, 10**3, 10**4, 10**5] 
 
 # Базовое количество прогонов и повторений 
-NUMBER_RUNS = 100 
+NUMBER_RUNS = 1 
 REPEAT_TIMES = 1
 
 
@@ -61,72 +62,82 @@ def test_permutations():
         print(f"\n--- Тесты для N = {N}, NUMBER_RUNS = {NUMBER_RUNS} ---")
 
         tests = defaultdict(dict)
-
-        # Fisher-Yates
-        setup_code = f"from functions import generate_random_permutation_fisher_yates; arr_copy = list(range({N}))"
-        stmt_code = "generate_random_permutation_fisher_yates(arr_copy)"
+        
+        setup_code = f"from functions import random_weight_permutation_seeded"
+        stmt_code = f"random_weight_permutation_seeded({N},{200000})"
         avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
-        tests["Fisher-Yates Shuffle"]["time"] = avg_time
-        tests["Fisher-Yates Shuffle"]["N"] = N
+        tests["Random weight"]["time"] = avg_time
+        tests["Random weight"]["N"] = N
 
-        # Floyd Permutation
-        setup_code = f"from functions import floyd_permutation; arr_copy = list(range({N}))"
-        stmt_code = f"floyd_permutation({N})"
-        avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
-        tests["Floyd Permutation"]["time"] = avg_time
-        tests["Floyd Permutation"]["N"] = N
 
-        # Prefixcipher Permutation
+
+#         # Fisher-Yates
+#         setup_code = f"from functions import generate_random_permutation_fisher_yates; arr_copy = list(range({N}))"
+#         stmt_code = "generate_random_permutation_fisher_yates(arr_copy)"
+#         avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
+#         tests["Fisher-Yates Shuffle"]["time"] = avg_time
+#         tests["Fisher-Yates Shuffle"]["N"] = N
+
+#         # Floyd Permutation
+#         setup_code = f"from functions import floyd_permutation; arr_copy = list(range({N}))"
+#         stmt_code = f"floyd_permutation({N})"
+#         avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
+#         tests["Floyd Permutation"]["time"] = avg_time
+#         tests["Floyd Permutation"]["N"] = N
+
+#         # Prefixcipher Permutation
        
-        setup_code = f"from functions import get_prefixcipher_permutation; arr_prefixcipher = list(range({N}))"
-        stmt_code = f"get_prefixcipher_permutation({N})"
-        avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
-        tests["Prefixcipher Permutation"]["time"] = avg_time
-        tests["Prefixcipher Permutation"]["N"] = N
+#         setup_code = f"from functions import get_prefixcipher_permutation; arr_prefixcipher = list(range({N}))"
+#         stmt_code = f"get_prefixcipher_permutation({N})"
+#         avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
+#         tests["Prefixcipher Permutation"]["time"] = avg_time
+#         tests["Prefixcipher Permutation"]["N"] = N
     
 
-        # Cyk Permutation
+#         # Cyk Permutation
         
-        setup_code = f"from functions import get_permutation_with_cyk; arr_cyk = list(range({N}))"
-        stmt_code = f"get_permutation_with_cyk({N})"
-        avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
-        tests["Cyk Permutation"]["time"] = avg_time
-        tests["Cyk Permutation"]["N"] = N
+#         setup_code = f"from functions import get_permutation_with_cyk; arr_cyk = list(range({N}))"
+#         stmt_code = f"get_permutation_with_cyk({N})"
+#         avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
+#         tests["Cyk Permutation"]["time"] = avg_time
+#         tests["Cyk Permutation"]["N"] = N
 
-        # AES Permutation
-        setup_code = f"from functions import generate_permutation_prefixcipherAES; arr_copy = list(range({N}))"
-        stmt_code = f"generate_permutation_prefixcipherAES({N})"
-        avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
-        tests["AES Permutation"]["time"] = avg_time
-        tests["AES Permutation"]["N"] = N
+#         # AES Permutation
+#         setup_code = f"from functions import generate_permutation_prefixcipherAES; arr_copy = list(range({N}))"
+#         stmt_code = f"generate_permutation_prefixcipherAES({N})"
+#         avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
+#         tests["AES Permutation"]["time"] = avg_time
+#         tests["AES Permutation"]["N"] = N
         
         
-        # Paloma Permutation
-        setup_code = f"from functions import getPermutation_Paloma; arr_copy = list(range({N}))"
-        stmt_code = f"getPermutation_Paloma({N})"
-        avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
-        tests["Paloma Permutation"]["time"] = avg_time
-        tests["Paloma Permutation"]["N"] = N
+#         # Paloma Permutation
+#         setup_code = f"from functions import getPermutation_Paloma; arr_copy = list(range({N}))"
+#         stmt_code = f"getPermutation_Paloma({N})"
+#         avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
+#         tests["Paloma Permutation"]["time"] = avg_time
+#         tests["Paloma Permutation"]["N"] = N
 
-        # PalomaOpt Permutation
-        setup_code = f"from functions import getPermutation_PalomaOpt; arr_copy = list(range({N}))"
-        stmt_code = f"getPermutation_PalomaOpt({N})"
-        avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
-        tests["PalomaOpt Permutation"]["time"] = avg_time
-        tests["PalomaOpt Permutation"]["N"] = N
+#         # PalomaOpt Permutation
+#         setup_code = f"from functions import getPermutation_PalomaOpt; arr_copy = list(range({N}))"
+#         stmt_code = f"getPermutation_PalomaOpt({N})"
+#         avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
+#         tests["PalomaOpt Permutation"]["time"] = avg_time
+#         tests["PalomaOpt Permutation"]["N"] = N
 
-        # Feistel Cipher Optimized Permutation
-        # k для FeistelCipher должен быть равен N
-        feistel_k = N
-        feistel_r = 8
-        setup_code = f"""
-from functions import FeistelCipherOptimized
-feistel_cipher = FeistelCipherOptimized(k={feistel_k}, r={feistel_r})
-"""
-        stmt_code = "list(feistel_cipher.get_permutation())"
-        avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
-        tests["Feistel Cipher Optimized Permutation"]["time"] = avg_time
-        tests["Feistel Cipher Optimized Permutation"]["N"] = feistel_k
+#         # Feistel Cipher Optimized Permutation
+#         # k для FeistelCipher должен быть равен N
+#         feistel_k = N
+#         feistel_r = 8
+#         setup_code = f"""
+# from functions import FeistelCipherOptimized
+# feistel_cipher = FeistelCipherOptimized(k={feistel_k}, r={feistel_r})
+# """
+#         stmt_code = "list(feistel_cipher.get_permutation())"
+#         avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
+#         tests["Feistel Cipher Optimized Permutation"]["time"] = avg_time
+#         tests["Feistel Cipher Optimized Permutation"]["N"] = feistel_k
+
+
 
         for name, data in tests.items():
             if isinstance(data["time"], str):
@@ -238,9 +249,9 @@ feistel_cipher_sample = FeistelCipherOptimized(k={feistel_k_sample}, r=8)
 # Тесты для функций векторов фиксированного веса
 def test_fixed_weight_vectors():
     print("\n--- Тестирование алгоритмов генерации векторов фиксированного веса ---")
-
-    for N in N_VALUES:
-        T = max(1, int(0.1 * N)) # Вес вектора (10% от N)
+    N_VALUES = [100000]    
+    for N in (N_VALUES):
+        T = 3000 # Вес вектора (10% от N)
         print(f"\n--- Тесты для N = {N}, T = {T}, NUMBER_RUNS = {NUMBER_RUNS} ---")
 
         tests = defaultdict(dict)
@@ -250,23 +261,19 @@ def test_fixed_weight_vectors():
         # Для простоты, n_mc = N, t_mc = T
         n_mc = N
         t_mc = T
-        m_mc = 9
-        q_mc = 2**m_mc
-        sigma_1_mc = m_mc + 30 # sigma_1 >= m
+        m_mc = 17
+        q_mc = 131072
+        sigma_1_mc = 200 # sigma_1 >= m
 
         # Проверка условий McEliece
         # t>=2, mt<n, n<=q, sigma_1>=m
-        if t_mc < 2 or m_mc * t_mc >= n_mc or n_mc > q_mc or sigma_1_mc < m_mc:
-            tests["Fixed Weight (Classic McEliece)"]["time"] = "Skipped (McEliece constraints not met for N,T)"
-            tests["Fixed Weight (Classic McEliece)"]["N"] = N
-            tests["Fixed Weight (Classic McEliece)"]["T"] = T
-        else:
-            setup_code = f"from functions import fixed_weight"
-            stmt_code = f"fixed_weight({n_mc}, {m_mc}, {q_mc}, {t_mc}, {sigma_1_mc})"
-            avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
-            tests["Fixed Weight (Classic McEliece)"]["time"] = avg_time
-            tests["Fixed Weight (Classic McEliece)"]["N"] = N
-            tests["Fixed Weight (Classic McEliece)"]["T"] = T
+        
+        setup_code = f"from functions import fixed_weight"
+        stmt_code = f"fixed_weight({n_mc}, {m_mc}, {q_mc}, {t_mc}, {sigma_1_mc})"
+        avg_time = run_and_measure_avg(stmt_code, setup_code, NUMBER_RUNS, REPEAT_TIMES)
+        tests["Fixed Weight (Classic McEliece)"]["time"] = avg_time
+        tests["Fixed Weight (Classic McEliece)"]["N"] = N
+        tests["Fixed Weight (Classic McEliece)"]["T"] = T
 
 
 #         # Fixed Weight Fisher-Yates
@@ -322,6 +329,9 @@ def test_fixed_weight_vectors():
                 print(f"{name} (N={data['N']}, T={data['T']}): {data['time']}")
             else:
                 print(f"{name} (N={data['N']}, T={data['T']}): {data['time']:.6f} секунд (среднее за {NUMBER_RUNS} прогонов)")
+
+
+        
 
 
 if __name__ == "__main__":
